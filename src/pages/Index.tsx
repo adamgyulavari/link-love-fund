@@ -57,8 +57,8 @@ const Index = () => {
             Let your fans tip you — all in one place.
           </p>
           <div className="flex items-center justify-center gap-4">
-            <Button size="lg" className="gap-2 text-base px-8">
-              Create your page <ArrowRight className="w-4 h-4" />
+            <Button size="lg" className="gap-2 text-base px-8" asChild>
+              <Link to="/auth">Create your page <ArrowRight className="w-4 h-4" /></Link>
             </Button>
             <Button variant="outline" size="lg" asChild className="text-base px-8">
               <Link to="/demo">See example</Link>
