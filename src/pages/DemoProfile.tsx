@@ -129,7 +129,7 @@ const DemoProfile = () => {
                   <div className="text-5xl mb-4">🎉</div>
                   <h3 className="text-xl font-serif text-foreground mb-1">Thank you!</h3>
                   <p className="text-sm text-muted-foreground">
-                    Your ${selectedAmount} tip means the world.
+                    Your €{selectedAmount} tip means the world.
                   </p>
                 </motion.div>
               ) : (
@@ -157,7 +157,7 @@ const DemoProfile = () => {
                             : "border-border bg-card text-foreground hover:border-primary/30"
                         }`}
                       >
-                        ${amount}
+                        €{amount}
                       </button>
                     ))}
                   </div>
@@ -168,11 +168,11 @@ const DemoProfile = () => {
                     className="w-full"
                     size="lg"
                   >
-                    {selectedAmount ? `Send $${selectedAmount} tip` : "Select an amount"}
+                    {selectedAmount ? `Send €${selectedAmount} tip` : "Select an amount"}
                   </Button>
 
                   <p className="text-xs text-muted-foreground text-center mt-3">
-                    Secure payment · No account needed
+                    Secure payment via Mollie
                   </p>
                 </>
               )}

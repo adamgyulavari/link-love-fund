@@ -1,73 +1,117 @@
-# Welcome to your Lovable project
+# LinkHub
 
-## Project info
+A link-in-bio platform where creators share all their links on one page and accept tips from fans via Mollie payments.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- **Link pages** — Create a public profile at `/<username>` with all your important links
+- **Tipping with Mollie** — Visitors can send tips (€2 / €5 / €10 / €25) processed through Mollie's hosted checkout
+- **Auth** — Sign up / sign in via Supabase Auth; profile auto-created on signup
+- **Dashboard** — Manage your links and profile from `/dashboard`
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend** — React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui, Framer Motion
+- **Backend** — Supabase (Postgres, Auth, Edge Functions)
+- **Payments** — Mollie Payments API v2
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js 18+
+- A [Supabase](https://supabase.com) project
+- A [Mollie](https://mollie.com) account with an API key
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Install
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Environment Variables
 
-# Step 3: Install the necessary dependencies.
-npm i
+Create a `.env` file in the project root:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```
+VITE_SUPABASE_URL=https://<your-project>.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=<your-anon-key>
+```
+
+Set the Mollie API key as a Supabase secret (used by Edge Functions):
+
+```sh
+supabase secrets set MOLLIE_API_KEY=test_xxxxxxxxxxxxxxxxxx
+```
+
+### Database
+
+Push migrations to your Supabase project:
+
+```sh
+supabase db push
+```
+
+This creates the `profiles`, `links`, and `tips` tables with Row Level Security policies.
+
+### Edge Functions
+
+Deploy the payment Edge Functions:
+
+```sh
+supabase functions deploy create-tip-payment
+supabase functions deploy mollie-webhook
+```
+
+| Function | Purpose |
+|---|---|
+| `create-tip-payment` | Creates a tip record + Mollie payment, returns the checkout URL |
+| `mollie-webhook` | Receives Mollie webhook callbacks, updates tip status |
+
+### Run
+
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Tipping Flow
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Visitor clicks "Tip" on a profile page and picks an amount
+2. Frontend calls the `create-tip-payment` Edge Function
+3. Edge Function inserts a `tips` row (status: `pending`) and creates a Mollie payment
+4. Visitor is redirected to Mollie's checkout page
+5. After payment, Mollie calls the `mollie-webhook` Edge Function which updates the tip status to `paid`
+6. Visitor is redirected to `/tip/return` which shows the result
 
-**Use GitHub Codespaces**
+## Project Structure
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+src/
+  pages/
+    Index.tsx          Landing page
+    Auth.tsx           Sign in / sign up
+    Dashboard.tsx      Manage profile & links
+    ProfilePage.tsx    Public profile with tip button
+    TipReturn.tsx      Post-payment return page
+    DemoProfile.tsx    Static demo profile
+  integrations/
+    supabase/          Supabase client & generated types
+  components/
+    ui/                shadcn/ui components
+supabase/
+  migrations/          SQL migrations
+  functions/
+    create-tip-payment/  Payment creation Edge Function
+    mollie-webhook/      Webhook handler Edge Function
+    _shared/             Shared utilities (CORS headers)
+```
 
-## What technologies are used for this project?
+## Scripts
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+| Command | Description |
+|---|---|
+| `npm run dev` | Start dev server |
+| `npm run build` | Production build |
+| `npm run preview` | Preview production build |
+| `npm run lint` | Run ESLint |
+| `npm test` | Run tests |

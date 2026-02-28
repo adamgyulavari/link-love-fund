@@ -86,7 +86,9 @@ export type Database = {
           created_at: string
           id: string
           message: string
+          mollie_payment_id: string | null
           profile_id: string
+          status: string
           tipper_name: string
         }
         Insert: {
@@ -94,7 +96,9 @@ export type Database = {
           created_at?: string
           id?: string
           message?: string
+          mollie_payment_id?: string | null
           profile_id: string
+          status?: string
           tipper_name?: string
         }
         Update: {
@@ -102,7 +106,9 @@ export type Database = {
           created_at?: string
           id?: string
           message?: string
+          mollie_payment_id?: string | null
           profile_id?: string
+          status?: string
           tipper_name?: string
         }
         Relationships: [

@@ -24,7 +24,6 @@ const ProfilePage = () => {
   const [showTip, setShowTip] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [tipperName, setTipperName] = useState("");
-  const [tipped, setTipped] = useState(false);
   const [tipping, setTipping] = useState(false);
 
   useEffect(() => {
@@ -60,24 +59,31 @@ const ProfilePage = () => {
     if (!selectedAmount || !profile) return;
     setTipping(true);
 
-    const { error } = await supabase.from("tips").insert({
-      profile_id: profile.id,
-      amount: selectedAmount,
-      tipper_name: tipperName || "Anonymous",
-    });
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const res = await fetch(`${supabaseUrl}/functions/v1/create-tip-payment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          profile_id: profile.id,
+          amount: selectedAmount,
+          tipper_name: tipperName || "Anonymous",
+          message: "",
+          redirect_base_url: window.location.origin,
+        }),
+      });
 
-    if (error) {
-      toast.error("Failed to send tip");
-    } else {
-      setTipped(true);
-      setTimeout(() => {
-        setShowTip(false);
-        setTipped(false);
-        setSelectedAmount(null);
-        setTipperName("");
-      }, 2500);
+      const data = await res.json();
+
+      if (!res.ok || !data.checkout_url) {
+        throw new Error(data.error || "Failed to create payment");
+      }
+
+      window.location.href = data.checkout_url;
+    } catch {
+      toast.error("Failed to start payment. Please try again.");
+      setTipping(false);
     }
-    setTipping(false);
   };
 
   if (loading) {
@@ -177,7 +183,7 @@ const ProfilePage = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-foreground/40 backdrop-blur-sm flex items-end md:items-center justify-center z-50 p-4"
-            onClick={() => !tipped && setShowTip(false)}
+            onClick={() => !tipping && setShowTip(false)}
           >
             <motion.div
               initial={{ y: 100, opacity: 0 }}
@@ -187,61 +193,45 @@ const ProfilePage = () => {
               onClick={(e) => e.stopPropagation()}
               className="bg-surface-elevated rounded-2xl p-6 w-full max-w-sm border border-border shadow-2xl"
             >
-              {tipped ? (
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="text-center py-8"
-                >
-                  <div className="text-5xl mb-4">🎉</div>
-                  <h3 className="text-xl font-serif text-foreground mb-1">Thank you!</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Your ${selectedAmount} tip means the world.
-                  </p>
-                </motion.div>
-              ) : (
-                <>
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-serif text-foreground">
-                      Tip {profile?.display_name?.split(" ")[0]} ☕
-                    </h3>
-                    <button onClick={() => setShowTip(false)} className="text-muted-foreground hover:text-foreground transition-colors">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-serif text-foreground">
+                  Tip {profile?.display_name?.split(" ")[0]} ☕
+                </h3>
+                <button onClick={() => setShowTip(false)} className="text-muted-foreground hover:text-foreground transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-                  <div className="grid grid-cols-4 gap-3 mb-4">
-                    {tipAmounts.map((amount) => (
-                      <button
-                        key={amount}
-                        onClick={() => setSelectedAmount(amount)}
-                        className={`py-3 rounded-xl text-sm font-semibold border-2 transition-all duration-200 ${
-                          selectedAmount === amount
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-border bg-card text-foreground hover:border-primary/30"
-                        }`}
-                      >
-                        ${amount}
-                      </button>
-                    ))}
-                  </div>
+              <div className="grid grid-cols-4 gap-3 mb-4">
+                {tipAmounts.map((amount) => (
+                  <button
+                    key={amount}
+                    onClick={() => setSelectedAmount(amount)}
+                    className={`py-3 rounded-xl text-sm font-semibold border-2 transition-all duration-200 ${
+                      selectedAmount === amount
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-card text-foreground hover:border-primary/30"
+                    }`}
+                  >
+                    €{amount}
+                  </button>
+                ))}
+              </div>
 
-                  <Input
-                    value={tipperName}
-                    onChange={(e) => setTipperName(e.target.value)}
-                    placeholder="Your name (optional)"
-                    className="mb-4"
-                  />
+              <Input
+                value={tipperName}
+                onChange={(e) => setTipperName(e.target.value)}
+                placeholder="Your name (optional)"
+                className="mb-4"
+              />
 
-                  <Button onClick={handleTip} disabled={!selectedAmount || tipping} className="w-full" size="lg">
-                    {tipping ? "Sending..." : selectedAmount ? `Send $${selectedAmount} tip` : "Select an amount"}
-                  </Button>
+              <Button onClick={handleTip} disabled={!selectedAmount || tipping} className="w-full" size="lg">
+                {tipping ? "Redirecting to payment..." : selectedAmount ? `Send €${selectedAmount} tip` : "Select an amount"}
+              </Button>
 
-                  <p className="text-xs text-muted-foreground text-center mt-3">
-                    Tips are recorded · No payment processing yet
-                  </p>
-                </>
-              )}
+              <p className="text-xs text-muted-foreground text-center mt-3">
+                Secure payment via Mollie
+              </p>
             </motion.div>
           </motion.div>
         )}
