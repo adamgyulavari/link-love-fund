@@ -110,9 +110,9 @@ const ProfilePage = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <nav className="px-6 py-4 flex justify-between items-center max-w-lg mx-auto w-full">
         <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-          ← linkhub
+          ← linkfund.eu
         </Link>
-        <span className="text-xs text-muted-foreground">linkhub.io/{username}</span>
+        <span className="text-xs text-muted-foreground">linkfund.eu/{username}</span>
       </nav>
 
       <main className="flex-1 flex items-start justify-center px-6 pt-8 pb-20">

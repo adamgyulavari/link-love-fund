@@ -27,7 +27,7 @@ const Index = () => {
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-5 max-w-6xl mx-auto">
         <Link to="/" className="text-2xl font-serif text-foreground tracking-tight">
-          linkhub
+          linkfund.eu
         </Link>
         <div className="flex items-center gap-4">
           <Link to="/demo" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -123,7 +123,7 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        Built with ❤️ — linkhub © {new Date().getFullYear()}
+        Built with ❤️ — linkfund.eu © {new Date().getFullYear()}
       </footer>
     </div>
   );
