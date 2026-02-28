@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import ProfilePage from "./pages/ProfilePage";
+import DemoProfile from "./pages/DemoProfile";
 import TipReturn from "./pages/TipReturn";
 import NotFound from "./pages/NotFound";
 
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/demo" element={<DemoProfile />} />
             <Route path="/tip/return" element={<TipReturn />} />
             <Route path="/:username" element={<ProfilePage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
