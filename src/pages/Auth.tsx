@@ -44,7 +44,7 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <nav className="px-6 py-5 max-w-6xl mx-auto w-full">
         <Link to="/" className="text-2xl font-serif text-foreground tracking-tight">
-          linkhub
+          linkfund.eu
         </Link>
       </nav>
 

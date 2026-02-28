@@ -1,4 +1,4 @@
-# LinkHub
+# linkfund.eu
 
 A link-in-bio platform where creators share all their links on one page and accept tips from fans via Mollie payments.
 
